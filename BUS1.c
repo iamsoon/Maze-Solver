@@ -4,6 +4,7 @@
 
 //By Amelia Soon (iamsoon)
 //Date: March 17, 2022
+//Spaghetti code that could definitely be improved on with more experience.
 
 int mazeRow=0,mazeCol=0;
 int maze[50][50];
@@ -78,21 +79,21 @@ void randomMaze() {
     //procedure
     srand(time(0));
     fprintf(in, "%d %d\n", mazeRow, mazeCol);
-    for (int col=0;col<mazeCol+2;col++) {
+    for (int col=0;col<mazeCol+2;col++) { //Top border of maze
         maze[0][col]=1;
     }
     for (int row=0;row<mazeRow;row++) {
-        maze[row][0]=1;
-        for (int col=0;col<mazeRow;col++) {
+        maze[row][0]=1; //Left border
+        for (int col=0;col<mazeRow;col++) { //Assign each point within maze borders with 0 or 1 randomly
             num = rand()%2;
-            fprintf(in, "%d ", num);
+            fprintf(in, "%d ", num); //Put value in doc
             maze[row][col]=num;
         }
-        maze[row][mazeCol+1]=1;
+        maze[row][mazeCol+1]=1; //Right border
         fprintf(in, "\n");
     }
-    for (int col=0;col<mazeCol+2;col++) {
-        maze[mazeRow+1][col]=1;
+    for (int col=0;col<mazeCol+2;col++) { //Bottom border
+        maze[mazeRow+1][col]=1; 
     }
     fclose(in);
     printf("Maze has been created with filename maze.txt, located in the same folder as this program.\n\n");
@@ -101,33 +102,32 @@ void randomMaze() {
 }
 
 void makeArray() {
-    //setup
     FILE* in;
     int current;
     char name[40];
     printf("Input file name (and location if the file is not in the same folder as this program): ");
     scanf("%s", &name);
     in = fopen(name, "r");
-    if (in==NULL) {
+    if (in==NULL) { //if file name not found
         printf("\nError loading file.\n\n");
         getch();
         return;
     }
     fscanf(in, "%d %d", &mazeRow, &mazeCol);
 
-    for (int col=0;col<mazeCol+2;col++) {
+    for (int col=0;col<mazeCol+2;col++) { //top border
         maze[0][col]=1;
     }
     for (int row=1;row<mazeRow+1;row++) {
-        maze[row][0]=1;
-        for (int col=1;col<mazeCol+1;col++) {
+        maze[row][0]=1; //left border
+        for (int col=1;col<mazeCol+1;col++) { //read value and assign to associated point in array
             fscanf(in, "%d", &current);
             maze[row][col]=current;
         }
-        maze[row][mazeCol+1]=1;
+        maze[row][mazeCol+1]=1; //right border
     }
     for (int col=0;col<mazeCol+2;col++) {
-        maze[mazeRow+1][col]=1;
+        maze[mazeRow+1][col]=1; //bottom border
     }
     fclose(in);
     printf("\nMaze loaded successfully.\n\n");
@@ -135,14 +135,13 @@ void makeArray() {
 }
 
 void printMaze(int maze[50][50], int mazeRow, int mazeCol) {
-    //procedure
-    for (int col=0;col<mazeCol+2;col++) {
-        printf("%d", col%10);
+    for (int col=0;col<mazeCol+2;col++) { //number rows and columns to make location identification easier
+        printf("%d", col%10); 
     }
     printf("\n");
     for (int row=1;row<mazeRow+1;row++) {
         printf("%d", row%10);
-        for (int col=1;col<mazeCol+1;col++) {
+        for (int col=1;col<mazeCol+1;col++) { //print according to value at location
             if (maze[row][col]==0) {
                 printf(".");
             }
@@ -167,17 +166,14 @@ void printMaze(int maze[50][50], int mazeRow, int mazeCol) {
 }
 
 void pathfindSetup(int maze[50][50], int choice) {
-    //setup for pathfind function
     printMaze(maze, mazeRow, mazeCol);
     int startx, starty, endx, endy, top=0;
     int* topLoc = &top;
     char* directions = calloc(mazeRow*mazeCol, sizeof(char));
-    do {
-        printf("Input the starting point row (1-%d): ", mazeRow);
-        scanf("%d",&startx);
-        printf("Input the starting point column (1-%d): ", mazeCol);
-        scanf("%d",&starty);
-        if (startx<1||starty<1||startx>mazeRow||starty>mazeCol) {
+    do { //input start and end points
+        printf("Input the starting point row (1-%d) and column (1-%d): ", mazeRow, mazeCol);
+        scanf("%d %d",&startx,&starty);
+        if (startx<1||starty<1||startx>mazeRow||starty>mazeCol) { //check position is valid
             printf("Chosen starting point is outside maze boundaries.");
         }
         if (maze[startx][starty]==1) {
@@ -186,10 +182,8 @@ void pathfindSetup(int maze[50][50], int choice) {
         maze[startx][starty]=3;
     } while (startx<1||starty<1||startx>mazeRow||starty>mazeCol||maze[startx][starty]==1);
     do {
-        printf("Input the end point row (1-%d): ", mazeRow);
-        scanf("%d",&endx);
-        printf("Input the end point column (1-%d): ", mazeCol);
-        scanf("%d",&endy);
+        printf("Input the end point row (1-%d) and column (1-%d): ", mazeRow,mazeCol);
+        scanf("%d %d",&endx,&endy);
         if (endx<1||endy<1||endx>mazeRow||endy>mazeCol) {
             printf("Chosen end point is outside maze boundaries.");
         }
@@ -209,7 +203,6 @@ void pathfindSetup(int maze[50][50], int choice) {
 }
 
 void solveMaze(int maze[50][50], int x, int y, int endx, int endy) {
-    //procedure
     //up(w) = x-1, down(s) = x+1, left(a) = y-1, right(d) = y+1
     //0=path, 1=wall, 2=end, 3=car
     char direction;
@@ -225,7 +218,7 @@ void solveMaze(int maze[50][50], int x, int y, int endx, int endy) {
                     maze[x-1][y]=3;
                     maze[x][y]=0;
                     system("cls");
-                    printMaze(maze, mazeRow, mazeCol);
+                    printMaze(maze, mazeRow, mazeCol); //Clears maze then reprints with updated car information
                     printf("End point reached.\n\n");
                     return;
                 }
@@ -283,7 +276,6 @@ void solveMaze(int maze[50][50], int x, int y, int endx, int endy) {
 }
 
 void pathfind(int maze[50][50], int x, int y, char* directions, int* topLoc) {
-    //procedure
     //up = x-1, down = x+1, left = y-1, right = y+1
     //0=path, 1=wall, 2=end, 3=path taken before, 4=dead end
     if (maze[x][y]==2){
@@ -299,45 +291,40 @@ void pathfind(int maze[50][50], int x, int y, char* directions, int* topLoc) {
         //going further into the maze
         if (maze[x-1][y]==0||maze[x-1][y]==2) {
             maze[x][y]=3;
-            directions[*topLoc]='u';
+            directions[*topLoc]='u'; //direction added to stack
             *topLoc++;
-            x--;
-            pathfind(maze, x, y, directions, topLoc);
+            pathfind(maze, x--, y, directions, topLoc);
             return;
         }
         if (maze[x+1][y]==0||maze[x+1][y]==2) {
             maze[x][y]=3;
             directions[*topLoc]='d';
             *topLoc++;
-            x++;
-            pathfind(maze, x, y, directions, topLoc);
+            pathfind(maze, x++, y, directions, topLoc);
             return;
         }
         if (maze[x][y-1]==0||maze[x][y-1]==2) {
             maze[x][y]=3;
             directions[*topLoc]='l';
             *topLoc++;
-            y--;
-            pathfind(maze, x, y, directions, topLoc);
+            pathfind(maze, x, y--, directions, topLoc);
             return;
         }
         if (maze[x][y+1]==0||maze[x][y+1]==2) {
             maze[x][y]=3;
             directions[*topLoc]='r';
             *topLoc++;
-            y++;
-            pathfind(maze, x, y, directions, topLoc);
+            pathfind(maze, x, y++, directions, topLoc);
             return;
         }
 
         //going back out the maze
         if (maze[x][y+1]==3) {
-            *topLoc--;
-            if (maze[x][y-1]!=3&&maze[x+1][y]!=3&&maze[x-1][y]!=3) {
+            *topLoc--; //direction removed from stack
+            if (maze[x][y-1]!=3&&maze[x+1][y]!=3&&maze[x-1][y]!=3) { //Check to see if other branches have been searched
                 maze[x][y]=4;
             }
-            y++;
-            pathfind(maze, x, y, directions, topLoc);
+            pathfind(maze, x, y++, directions, topLoc);
             return;
         }
         if (maze[x][y-1]==3) {
@@ -345,8 +332,7 @@ void pathfind(int maze[50][50], int x, int y, char* directions, int* topLoc) {
             if (maze[x][y+1]!=3&&maze[x-1][y]!=3&&maze[x+1][y]!=3) {
                 maze[x][y]=4;
             }
-            y--;
-            pathfind(maze, x, y, directions, topLoc);
+            pathfind(maze, x, y--, directions, topLoc);
             return;
         }
         if (maze[x+1][y]==3) {
@@ -354,8 +340,7 @@ void pathfind(int maze[50][50], int x, int y, char* directions, int* topLoc) {
             if (maze[x-1][y]!=3&&maze[x][y+1]!=3&&maze[x][y-1]!=3) {
                 maze[x][y]=4;
             }
-            x++;
-            pathfind(maze, x, y, directions, topLoc);
+            pathfind(maze, x++, y, directions, topLoc);
             return;
         }
         if (maze[x-1][y]==3) {
@@ -363,12 +348,11 @@ void pathfind(int maze[50][50], int x, int y, char* directions, int* topLoc) {
             if (maze[x+1][y]!=3&&maze[x][y-1]!=3&&maze[x][y+1]!=3) {
                 maze[x][y]=4;
             }
-            x--;
-            pathfind(maze, x, y, directions, topLoc);
+            pathfind(maze, x--, y, directions, topLoc);
             return;
         }
     }
-    printf("Maze is impossible to solve.\n\n");
+    printf("Maze is impossible to solve.\n\n"); //If whole maze has been searched
     return;
 }
 
